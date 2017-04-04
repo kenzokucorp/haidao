@@ -8,7 +8,6 @@ public class ShipController : MonoBehaviour {
 	public static ShipController ship = null;
 
 	public bool canMove = true;
-	public bool isOnTheGround = false;
 
 	public float maxSpeed = 2000.0f;
 	public float rotationSpeed = 2000.0f;
@@ -16,11 +15,12 @@ public class ShipController : MonoBehaviour {
 	public string horizontalAxis = "Horizontal";
 	public string verticalAxis = "Vertical";
 
-	public CapsuleCollider feetCollider = null;
-	public LayerMask groundLayer;
-
 	private Rigidbody theRigidbody = null;
 	private Transform theTransform = null;
+
+	public CameraController c;
+	float horizontal;
+	float vertical;
 
 	public static float Health {
 		get { 
@@ -41,6 +41,7 @@ public class ShipController : MonoBehaviour {
 		ship = this;
 		theRigidbody = GetComponent<Rigidbody> ();
 		theTransform = GetComponent<Transform> ();
+		c.OnPlayerSpawn (gameObject);
 	}
 
 	// Use this for initialization
@@ -54,7 +55,6 @@ public class ShipController : MonoBehaviour {
 	}
 
 	private void ChangeDirection() {
-		//direction = (FACE_DIRECTION)((int)direction * -1.0f);
 		Vector3 localScale = theTransform.localScale;
 		localScale.x *= -1.0f;
 		theTransform.localScale = localScale;
@@ -64,8 +64,8 @@ public class ShipController : MonoBehaviour {
 		if (!canMove || Health <= 0)
 			return;
 
-		float horizontal = CrossPlatformInputManager.GetAxis (horizontalAxis);
-		float vertical = CrossPlatformInputManager.GetAxis (verticalAxis);
+		horizontal = CrossPlatformInputManager.GetAxis (horizontalAxis);
+		vertical = CrossPlatformInputManager.GetAxis (verticalAxis);
 
 		theRigidbody.AddTorque(0f,horizontal*rotationSpeed*Time.deltaTime,0f);
 		theRigidbody.AddForce(transform.forward*vertical*maxSpeed*Time.deltaTime);
@@ -81,5 +81,29 @@ public class ShipController : MonoBehaviour {
 
 	public static void Reset() {
 		Health = 100.0f;
+	}
+
+	void UpdateCameraMovement(){
+		if(c.canControl){
+			//c.x += mouseX * mouseXSens;
+			//c.y -= mouseY * mouseYSens;
+
+			//c.y = V_LookAngle;
+
+			//c.cameraRotationPoint_current = Vector3.MoveTowards(c.cameraRotationPoint_current, IS_AIMING ? (IS_CROUCHING ? c.cameraRotationPoint_crouching_aiming : c.cameraRotationPoint_aiming) : c.cameraRotationPoint_normal, Time.deltaTime * c.speed_offsetChange);
+			//c.cameraPositionOffset_current = Vector3.MoveTowards(c.cameraPositionOffset_current, IS_AIMING ? (IS_CROUCHING ? c.camera_PositionOffset_crouching_aiming : c.camera_PositionOffset_aiming) : c.camera_PositionOffset_normal, Time.deltaTime * c.speed_offsetChange);
+
+			c.cameraRotationPoint_current = Vector3.MoveTowards(c.cameraRotationPoint_current, c.cameraRotationPoint_normal, Time.deltaTime * c.speed_offsetChange);
+			c.cameraPositionOffset_current = Vector3.MoveTowards(c.cameraPositionOffset_current, c.camera_PositionOffset_normal, Time.deltaTime * c.speed_offsetChange);
+
+			c.cRotation = Quaternion.Euler(c.y, c.x, 0);
+			c.cPosition = c.CalculateCameraPosition(c.cameraRotationPoint_current, c.cameraPositionOffset_current, c.cRotation);
+			c.transform.position = c.cPosition;
+			c.transform.rotation = c.cRotation;
+		}
+	}
+
+	void LateUpdate(){
+		UpdateCameraMovement();
 	}
 }
