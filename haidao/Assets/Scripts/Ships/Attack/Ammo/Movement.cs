@@ -18,6 +18,6 @@ public class Movement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		theTransform.position += theTransform.forward * maxSpeed * Time.deltaTime;
+		theTransform.position += theTransform.right * maxSpeed * Time.deltaTime;
 	}
 }
