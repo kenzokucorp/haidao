@@ -5,7 +5,7 @@ using UnityEngine;
 public class Movement : MonoBehaviour {
 
 	private Transform theTransform = null;
-	public float maxSpeed = 2.0f;
+	public float maxSpeed = 100.0f;
 
 	void Awake() {
 		theTransform = GetComponent<Transform> ();
