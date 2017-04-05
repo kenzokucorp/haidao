@@ -14,6 +14,7 @@ public class ShipController : MonoBehaviour {
 
 	public string horizontalAxis = "Horizontal";
 	public string verticalAxis = "Vertical";
+	public string fireAxis = "Fire1";
 
 	private Rigidbody theRigidbody = null;
 	private Transform theTransform = null;
@@ -21,6 +22,10 @@ public class ShipController : MonoBehaviour {
 	public CameraController c;
 	float horizontal;
 	float vertical;
+
+	public Transform[] weaponTransforms;
+	private bool canFire = true;
+	float reloadDelay = 2.0f;
 
 	public static float Health {
 		get { 
@@ -69,7 +74,20 @@ public class ShipController : MonoBehaviour {
 
 		theRigidbody.AddTorque(0f,horizontal*rotationSpeed*Time.deltaTime,0f);
 		theRigidbody.AddForce(transform.forward*vertical*maxSpeed*Time.deltaTime);
+
+		if (Input.GetButtonDown (fireAxis) && canFire) {
+			foreach (Transform transform in weaponTransforms) {
+				AmmoManager.SpawnAmmo (transform.position, transform.rotation);
+			}
+			canFire = false;
+			Invoke ("EnableFire", reloadDelay);
+		}
 	}
+
+	void EnableFire() {
+		canFire = true;
+	}
+
 
 	void OnDestroy() {
 		ship = null;
